@@ -166,7 +166,7 @@ export default class View {
 	}
 
 	/**
-	 * @param {Function} handler Function called on synthetic event.
+	 * @param {(title: string) => void} handler Function called on synthetic event.
 	 */
 	bindAddItem(handler) {
 		$on(this.$newTodo, 'change', ({ target }) => {
@@ -185,7 +185,7 @@ export default class View {
 	}
 
 	/**
-	 * @param {Function} handler Function called on synthetic event.
+	 * @param {(completed: boolean) => void} handler Function called on synthetic event.
 	 */
 	bindToggleAll(handler) {
 		$on(this.$toggleAll, 'click', ({ target }) => {
@@ -194,7 +194,7 @@ export default class View {
 	}
 
 	/**
-	 * @param {Function} handler Function called on synthetic event.
+	 * @param {(id: number) => void} handler Function called on synthetic event.
 	 */
 	bindRemoveItem(handler) {
 		$delegate(this.$todoList, '.destroy', 'click', ({ target }) => {
@@ -216,7 +216,7 @@ export default class View {
 	}
 
 	/**
-	 * @param {Function} handler Function called on synthetic event.
+	 * @param {(id: number, title: string) => void} handler Function called on synthetic event.
 	 */
 	bindEditItemSave(handler) {
 		$delegate(this.$todoList, 'li .edit', 'blur', ({ target }) => {
@@ -236,7 +236,7 @@ export default class View {
 	}
 
 	/**
-	 * @param {Function} handler Function called on synthetic event.
+	 * @param {(id: number) => void} handler Function called on synthetic event.
 	 */
 	bindEditItemCancel(handler) {
 		$delegate(this.$todoList, 'li .edit', 'keyup', ({ target, keyCode }) => {

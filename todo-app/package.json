@@ -3,5 +3,11 @@
   "dependencies": {
     "todomvc-app-css": "^2.0.1",
     "todomvc-common": "^1.0.2"
+  },
+  "scripts": {
+    "type-check": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^2.9.2"
   }
 }

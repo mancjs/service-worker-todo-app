@@ -3,9 +3,6 @@ import Store from './store.js';
 import View from './view.js';
 
 export default class Controller {
-	/** @type {string | null} */
-	_lastActiveRoute;
-	
 	/**
 	 * @param  {!Store} store A Store instance
 	 * @param  {!View} view A View instance
@@ -14,18 +11,19 @@ export default class Controller {
 		this.store = store;
 		this.view = view;
 
-		view.bindAddItem(this.addItem.bind(this));
-		view.bindEditItemSave(this.editItemSave.bind(this));
-		view.bindEditItemCancel(this.editItemCancel.bind(this));
-		view.bindRemoveItem(this.removeItem.bind(this));
+		view.bindAddItem((title) => this.addItem(title));
+		view.bindEditItemSave((id, title) => this.editItemSave(id, title));
+		view.bindEditItemCancel((id) => this.editItemCancel(id));
+		view.bindRemoveItem((id) => this.removeItem(id));
 		view.bindToggleItem((id, completed) => {
 			this.toggleCompleted(id, completed);
 			this._filter();
 		});
-		view.bindRemoveCompleted(this.removeCompletedItems.bind(this));
-		view.bindToggleAll(this.toggleAll.bind(this));
+		view.bindRemoveCompleted(() => this.removeCompletedItems());
+		view.bindToggleAll((completed) => this.toggleAll(completed));
 
 		this._activeRoute = '';
+		/** @type {string | null} */
 		this._lastActiveRoute = null;
 	}
 
@@ -46,15 +44,15 @@ export default class Controller {
 	 *
 	 * @param {!string} title Title of the new item
 	 */
-	addItem(title) {
-		this.store.insert({
+	async addItem(title) {
+		await this.store.insert({
 			id: Date.now(),
 			title,
 			completed: false
-		}, () => {
-			this.view.clearNewTodo();
-			this._filter(true);
 		});
+
+		this.view.clearNewTodo();
+		this._filter(true);
 	}
 
 	/**
@@ -63,11 +61,11 @@ export default class Controller {
 	 * @param {number} id ID of the Item in edit
 	 * @param {!string} title New title for the Item in edit
 	 */
-	editItemSave(id, title) {
+	async editItemSave(id, title) {
 		if (title.length) {
-			this.store.update({ id, title }, () => {
-				this.view.editItemDone(id, title);
-			});
+			await this.store.update({ id, title })
+
+			this.view.editItemDone(id, title);
 		} else {
 			this.removeItem(id);
 		}
@@ -78,11 +76,11 @@ export default class Controller {
 	 *
 	 * @param {!number} id ID of the Item in edit
 	 */
-	editItemCancel(id) {
-		this.store.find({ id }, data => {
-			const title = data[0].title;
-			this.view.editItemDone(id, title);
-		});
+	async editItemCancel(id) {
+		const data = await this.store.find({ id })
+
+		const title = data[0].title;
+		this.view.editItemDone(id, title);
 	}
 
 	/**
@@ -90,18 +88,20 @@ export default class Controller {
 	 *
 	 * @param {!number} id Item ID of item to remove
 	 */
-	removeItem(id) {
-		this.store.remove({ id }, () => {
-			this._filter();
-			this.view.removeItem(id);
-		});
+	async removeItem(id) {
+		await this.store.remove({ id });
+
+		this._filter();
+		this.view.removeItem(id);
 	}
 
 	/**
 	 * Remove all completed items.
 	 */
-	removeCompletedItems() {
-		this.store.remove({ completed: true }, this._filter.bind(this));
+	async removeCompletedItems() {
+		await this.store.remove({ completed: true })
+
+		this._filter();
 	}
 
 	/**
@@ -110,10 +110,10 @@ export default class Controller {
 	 * @param {!number} id ID of the target Item
 	 * @param {!boolean} completed Desired completed state
 	 */
-	toggleCompleted(id, completed) {
-		this.store.update({ id, completed }, () => {
-			this.view.setItemComplete(id, completed);
-		});
+	async toggleCompleted(id, completed) {
+		await this.store.update({ id, completed });
+
+		this.view.setItemComplete(id, completed);
 	}
 
 	/**
@@ -121,12 +121,12 @@ export default class Controller {
 	 *
 	 * @param {boolean} completed Desired completed state
 	 */
-	toggleAll(completed) {
-		this.store.find({ completed: !completed }, data => {
-			for (let { id } of data) {
-				this.toggleCompleted(id, completed);
-			}
-		});
+	async toggleAll(completed) {
+		const data = await this.store.find({ completed: !completed });
+
+		for (let { id } of data) {
+			await this.toggleCompleted(id, completed);
+		}
 
 		this._filter();
 	}
@@ -140,16 +140,14 @@ export default class Controller {
 		const route = this._activeRoute;
 
 		if (force || this._lastActiveRoute !== '' || this._lastActiveRoute !== route) {
-			/* jscs:disable disallowQuotedKeysInObjects */
 			this.store.find({
 				'': emptyItemQuery,
 				'active': { completed: false },
 				'completed': { completed: true }
-			}[route], this.view.showItems.bind(this.view));
-			/* jscs:enable disallowQuotedKeysInObjects */
+			}[route]).then((list) => this.view.showItems(list));
 		}
 
-		this.store.count((total, active, completed) => {
+		this.store.count().then(({ total, active, completed }) => {
 			this.view.setItemsLeft(active);
 			this.view.setClearCompletedButtonVisibility(completed);
 

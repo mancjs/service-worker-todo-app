@@ -3,9 +3,8 @@ import { Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery } from './item.js
 export default class Store {
 	/**
 	 * @param {!string} name Database name
-	 * @param {function()} [callback] Called when the Store is ready
 	 */
-	constructor(name, callback) {
+	constructor(name) {
 		/**
 		 * @type {Storage}
 		 */
@@ -33,52 +32,46 @@ export default class Store {
 		this.setLocalStorage = (todos) => {
 			localStorage.setItem(name, JSON.stringify(liveTodos = todos));
 		};
-
-		if (callback) {
-			callback();
-		}
 	}
 
 	/**
 	 * Find items with properties matching those on query.
 	 *
 	 * @param {ItemQuery} query Query to match
-	 * @param {function(ItemList)} callback Called when the query is done
 	 *
 	 * @example
 	 * db.find({completed: true}, data => {
 	 *	 // data shall contain items whose completed properties are true
 	 * })
 	 */
-	find(query, callback) {
+	async find(query) {
 		const todos = this.getLocalStorage();
-		
+
 		/**
 		 * @type {keyof ItemQuery}
 		 */
 		let k;
 
-		callback(todos.filter(todo => {
+		return todos.filter(todo => {
 			for (k in query) {
 				if (query[k] !== todo[k]) {
 					return false;
 				}
 			}
 			return true;
-		}));
+		});
 	}
 
 	/**
 	 * Update an item in the Store.
 	 *
 	 * @param {ItemUpdate} update Record with an id and a property to update
-	 * @param {function()} [callback] Called when partialRecord is applied
 	 */
-	update(update, callback) {
+	async update(update) {
 		const id = update.id;
 		const todos = this.getLocalStorage();
 		let i = todos.length;
-		
+
 		/**
 		 * @type {keyof ItemUpdate}
 		 */
@@ -94,35 +87,25 @@ export default class Store {
 		}
 
 		this.setLocalStorage(todos);
-
-		if (callback) {
-			callback();
-		}
 	}
 
 	/**
 	 * Insert an item into the Store.
 	 *
 	 * @param {Item} item Item to insert
-	 * @param {function()} [callback] Called when item is inserted
 	 */
-	insert(item, callback) {
+	async insert(item) {
 		const todos = this.getLocalStorage();
 		todos.push(item);
 		this.setLocalStorage(todos);
-
-		if (callback) {
-			callback();
-		}
 	}
 
 	/**
 	 * Remove items from the Store based on a query.
 	 *
 	 * @param {ItemQuery} query Query matching the items to remove
-	 * @param {function(ItemList)} [callback] Called when records matching query are removed
 	 */
-	remove(query, callback) {
+	async remove(query) {
 		/**
 		 * @type {keyof ItemQuery}
 		 */
@@ -139,27 +122,25 @@ export default class Store {
 
 		this.setLocalStorage(todos);
 
-		if (callback) {
-			callback(todos);
-		}
+		return todos;
 	}
 
 	/**
 	 * Count total, active, and completed todos.
-	 *
-	 * @param {function(number, number, number)} callback Called when the count is completed
 	 */
-	count(callback) {
-		this.find(emptyItemQuery, data => {
-			const total = data.length;
+	async count() {
+		const data = await this.find(emptyItemQuery);
+		const total = data.length;
 
-			let i = total;
-			let completed = 0;
+		let i = total;
+		let completed = 0;
 
-			while (i--) {
-				completed += data[i].completed ? 1 : 0;
-			}
-			callback(total, total - completed, completed);
-		});
+		while (i--) {
+			completed += data[i].completed ? 1 : 0;
+		}
+
+		const active = total - completed;
+
+		return { total, active, completed };
 	}
 }
