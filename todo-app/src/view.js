@@ -2,7 +2,17 @@ import { ItemList } from './item.js';
 import { qs, $on, $delegate } from './helpers.js';
 import Template from './template.js';
 
-const _itemId = element => parseInt(element.parentNode.dataset.id, 10);
+/** @type {(element: HTMLElement) => number} */
+const _itemId = element => {
+	const { parentNode } = element;
+
+	if (parentNode instanceof HTMLLIElement && parentNode.dataset.id) {
+		return parseInt(parentNode.dataset.id, 10);
+	}
+
+	throw new Error('ID on LI element not found');
+}
+
 const ENTER_KEY = 13;
 const ESCAPE_KEY = 27;
 
@@ -16,10 +26,10 @@ export default class View {
 		this.$todoItemCounter = qs('.todo-count');
 		this.$clearCompleted = qs('.clear-completed');
 		this.$main = qs('.main');
-		this.$toggleAll = qs('.toggle-all');
-		this.$newTodo = qs('.new-todo');
+		this.$toggleAll = /** @type {HTMLInputElement} */ (qs('.toggle-all'));
+		this.$newTodo = /** @type {HTMLInputElement} */ (qs('.new-todo'));
 		$delegate(this.$todoList, 'li label', 'dblclick', ({ target }) => {
-			this.editItem(target);
+			this.editItem(/** @type {HTMLLabelElement} */(target));
 		});
 	}
 
@@ -27,10 +37,12 @@ export default class View {
 	/**
 	 * Put an item into edit mode.
 	 *
-	 * @param {!Element} target Target Item's label Element
+	 * @param {!HTMLLabelElement} target Target Item's label Element
 	 */
 	editItem(target) {
 		const listItem = target.parentElement;
+
+		if (!(listItem instanceof HTMLLIElement)) throw new Error('Not an LI element');
 
 		listItem.classList.add('editing');
 
@@ -133,7 +145,7 @@ export default class View {
 		listItem.className = completed ? 'completed' : '';
 
 		// In case it was toggled from an event and not by clicking the checkbox
-		qs('input', listItem).checked = completed;
+		/** @type {HTMLInputElement} */ (qs('input', listItem)).checked = completed;
 	}
 
 	/**
@@ -158,7 +170,7 @@ export default class View {
 	 */
 	bindAddItem(handler) {
 		$on(this.$newTodo, 'change', ({ target }) => {
-			const title = target.value.trim();
+			const title = /** @type {HTMLInputElement} */ (target).value.trim();
 			if (title) {
 				handler(title);
 			}
@@ -166,7 +178,7 @@ export default class View {
 	}
 
 	/**
-	 * @param {Function} handler Function called on synthetic event.
+	 * @param {EventListener} handler Function called on synthetic event.
 	 */
 	bindRemoveCompleted(handler) {
 		$on(this.$clearCompleted, 'click', handler);
@@ -177,7 +189,7 @@ export default class View {
 	 */
 	bindToggleAll(handler) {
 		$on(this.$toggleAll, 'click', ({ target }) => {
-			handler(target.checked);
+			handler(/** @type {HTMLInputElement} */(target).checked);
 		});
 	}
 
@@ -186,16 +198,20 @@ export default class View {
 	 */
 	bindRemoveItem(handler) {
 		$delegate(this.$todoList, '.destroy', 'click', ({ target }) => {
+			if (!(target instanceof HTMLInputElement)) throw new Error('Not an input element');
+
 			handler(_itemId(target));
 		});
 	}
 
 	/**
-	 * @param {Function} handler Function called on synthetic event.
+	 * @param {(id: number, completed: boolean) => void} handler Function called on synthetic event.
 	 */
 	bindToggleItem(handler) {
 		$delegate(this.$todoList, '.toggle', 'click', ({ target }) => {
-			handler(_itemId(target), target.checked);
+			if (!(target instanceof HTMLInputElement)) throw new Error('Not an input element');
+
+			handler(_itemId(target), (target).checked);
 		});
 	}
 
@@ -204,15 +220,17 @@ export default class View {
 	 */
 	bindEditItemSave(handler) {
 		$delegate(this.$todoList, 'li .edit', 'blur', ({ target }) => {
-			if (!target.dataset.iscanceled) {
-				handler(_itemId(target), target.value.trim());
+			if (!(target instanceof HTMLInputElement)) throw new Error('Not an input element');
+
+			if (!(target).dataset.iscanceled) {
+				handler(_itemId(target), (target).value.trim());
 			}
 		}, true);
 
 		// Remove the cursor from the input when you hit enter just like if it were a real form
 		$delegate(this.$todoList, 'li .edit', 'keypress', ({ target, keyCode }) => {
 			if (keyCode === ENTER_KEY) {
-				target.blur();
+				/** @type {HTMLInputElement} */ (target).blur();
 			}
 		});
 	}
@@ -222,8 +240,10 @@ export default class View {
 	 */
 	bindEditItemCancel(handler) {
 		$delegate(this.$todoList, 'li .edit', 'keyup', ({ target, keyCode }) => {
+			if (!(target instanceof HTMLInputElement)) throw new Error('Not an input element');
+
 			if (keyCode === ESCAPE_KEY) {
-				target.dataset.iscanceled = true;
+				target.dataset.iscanceled = 'true';
 				target.blur();
 
 				handler(_itemId(target));

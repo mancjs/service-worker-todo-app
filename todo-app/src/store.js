@@ -52,6 +52,10 @@ export default class Store {
 	 */
 	find(query, callback) {
 		const todos = this.getLocalStorage();
+		
+		/**
+		 * @type {keyof ItemQuery}
+		 */
 		let k;
 
 		callback(todos.filter(todo => {
@@ -74,6 +78,10 @@ export default class Store {
 		const id = update.id;
 		const todos = this.getLocalStorage();
 		let i = todos.length;
+		
+		/**
+		 * @type {keyof ItemUpdate}
+		 */
 		let k;
 
 		while (i--) {
@@ -112,9 +120,12 @@ export default class Store {
 	 * Remove items from the Store based on a query.
 	 *
 	 * @param {ItemQuery} query Query matching the items to remove
-	 * @param {function(ItemList)|function()} [callback] Called when records matching query are removed
+	 * @param {function(ItemList)} [callback] Called when records matching query are removed
 	 */
 	remove(query, callback) {
+		/**
+		 * @type {keyof ItemQuery}
+		 */
 		let k;
 
 		const todos = this.getLocalStorage().filter(todo => {
@@ -146,7 +157,7 @@ export default class Store {
 			let completed = 0;
 
 			while (i--) {
-				completed += data[i].completed;
+				completed += data[i].completed ? 1 : 0;
 			}
 			callback(total, total - completed, completed);
 		});

@@ -5,7 +5,7 @@
  * @param {Element} [scope] Optional scope element for the selector
  */
 export function qs(selector, scope) {
-	return (scope || document).querySelector(selector);
+	return /** @type {HTMLElement} */ ((scope || document).querySelector(selector));
 }
 
 /**
@@ -13,7 +13,7 @@ export function qs(selector, scope) {
  *
  * @param {Element|Window} target Target Element
  * @param {string} type Event name to bind to
- * @param {Function} callback Event callback
+ * @param {EventListener} callback Event callback
  * @param {boolean} [capture] Capture the event
  */
 export function $on(target, type, callback, capture) {
@@ -26,11 +26,12 @@ export function $on(target, type, callback, capture) {
  * @param {Element} target Element which the event must bubble to
  * @param {string} selector Selector to match
  * @param {string} type Event name
- * @param {Function} handler Function called when the event bubbles to target
+ * @param {(e: KeyboardEvent) => void} handler Function called when the event bubbles to target
  *                           from an element matching selector
  * @param {boolean} [capture] Capture the event
  */
 export function $delegate(target, selector, type, handler, capture) {
+	/** @type {EventListener} */
 	const dispatchEvent = event => {
 		const targetElement = event.target;
 		const potentialElements = target.querySelectorAll(selector);

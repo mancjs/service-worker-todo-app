@@ -3,6 +3,9 @@ import Store from './store.js';
 import View from './view.js';
 
 export default class Controller {
+	/** @type {string | null} */
+	_lastActiveRoute;
+	
 	/**
 	 * @param  {!Store} store A Store instance
 	 * @param  {!View} view A View instance
