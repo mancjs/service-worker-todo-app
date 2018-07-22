@@ -1,4 +1,4 @@
-import {Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery} from './item';
+import {Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery} from './item.mjs';
 
 export default class Store {
 	/**

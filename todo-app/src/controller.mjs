@@ -1,6 +1,6 @@
-import {emptyItemQuery} from './item';
-import Store from './store';
-import View from './view';
+import {emptyItemQuery} from './item.mjs';
+import Store from './store.mjs';
+import View from './view.mjs';
 
 export default class Controller {
 	/**

@@ -1,8 +1,8 @@
-import Controller from './controller';
-import {$on} from './helpers';
-import Template from './template';
-import Store from './store';
-import View from './view';
+import Controller from './controller.mjs';
+import {$on} from './helpers.mjs';
+import Template from './template.mjs';
+import Store from './store.mjs';
+import View from './view.mjs';
 
 const store = new Store('todos-vanilla-es6');
 
