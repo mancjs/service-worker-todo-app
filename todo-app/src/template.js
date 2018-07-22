@@ -1,6 +1,6 @@
-import {ItemList} from './item.mjs';
+import { ItemList } from './item.js';
 
-import {escapeForHTML} from './helpers.mjs';
+import { escapeForHTML } from './helpers.js';
 
 export default class Template {
 	/**
@@ -19,7 +19,7 @@ export default class Template {
 	itemList(items) {
 		return items.reduce((a, item) => a + `
 <li data-id="${item.id}"${item.completed ? ' class="completed"' : ''}>
-	<input class="toggle" type="checkbox" ${item.completed ? 'checked' : ''}>
+	<input class="toggle" type="checkbox" ${item.completed ? 'checked' : ''} />
 	<label>${escapeForHTML(item.title)}</label>
 	<button class="destroy"></button>
 </li>`, '');

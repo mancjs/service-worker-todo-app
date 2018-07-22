@@ -1,6 +1,6 @@
-import {emptyItemQuery} from './item.mjs';
-import Store from './store.mjs';
-import View from './view.mjs';
+import { emptyItemQuery } from './item.js';
+import Store from './store.js';
+import View from './view.js';
 
 export default class Controller {
 	/**
@@ -62,7 +62,7 @@ export default class Controller {
 	 */
 	editItemSave(id, title) {
 		if (title.length) {
-			this.store.update({id, title}, () => {
+			this.store.update({ id, title }, () => {
 				this.view.editItemDone(id, title);
 			});
 		} else {
@@ -76,7 +76,7 @@ export default class Controller {
 	 * @param {!number} id ID of the Item in edit
 	 */
 	editItemCancel(id) {
-		this.store.find({id}, data => {
+		this.store.find({ id }, data => {
 			const title = data[0].title;
 			this.view.editItemDone(id, title);
 		});
@@ -88,7 +88,7 @@ export default class Controller {
 	 * @param {!number} id Item ID of item to remove
 	 */
 	removeItem(id) {
-		this.store.remove({id}, () => {
+		this.store.remove({ id }, () => {
 			this._filter();
 			this.view.removeItem(id);
 		});
@@ -98,7 +98,7 @@ export default class Controller {
 	 * Remove all completed items.
 	 */
 	removeCompletedItems() {
-		this.store.remove({completed: true}, this._filter.bind(this));
+		this.store.remove({ completed: true }, this._filter.bind(this));
 	}
 
 	/**
@@ -108,7 +108,7 @@ export default class Controller {
 	 * @param {!boolean} completed Desired completed state
 	 */
 	toggleCompleted(id, completed) {
-		this.store.update({id, completed}, () => {
+		this.store.update({ id, completed }, () => {
 			this.view.setItemComplete(id, completed);
 		});
 	}
@@ -119,8 +119,8 @@ export default class Controller {
 	 * @param {boolean} completed Desired completed state
 	 */
 	toggleAll(completed) {
-		this.store.find({completed: !completed}, data => {
-			for (let {id} of data) {
+		this.store.find({ completed: !completed }, data => {
+			for (let { id } of data) {
 				this.toggleCompleted(id, completed);
 			}
 		});
@@ -140,8 +140,8 @@ export default class Controller {
 			/* jscs:disable disallowQuotedKeysInObjects */
 			this.store.find({
 				'': emptyItemQuery,
-				'active': {completed: false},
-				'completed': {completed: true}
+				'active': { completed: false },
+				'completed': { completed: true }
 			}[route], this.view.showItems.bind(this.view));
 			/* jscs:enable disallowQuotedKeysInObjects */
 		}
