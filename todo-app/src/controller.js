@@ -1,10 +1,11 @@
 import { emptyItemQuery } from './item.js';
-import Store from './store.js';
+// import Store from './store.js';
+import StoreRemote from './store-remote.js';
 import View from './view.js';
 
 export default class Controller {
 	/**
-	 * @param  {!Store} store A Store instance
+	 * @param  {!StoreRemote} store A Store instance
 	 * @param  {!View} view A View instance
 	 */
 	constructor(store, view) {
@@ -15,8 +16,8 @@ export default class Controller {
 		view.bindEditItemSave((id, title) => this.editItemSave(id, title));
 		view.bindEditItemCancel((id) => this.editItemCancel(id));
 		view.bindRemoveItem((id) => this.removeItem(id));
-		view.bindToggleItem((id, completed) => {
-			this.toggleCompleted(id, completed);
+		view.bindToggleItem(async (id, completed) => {
+			await this.toggleCompleted(id, completed);
 			this._filter();
 		});
 		view.bindRemoveCompleted(() => this.removeCompletedItems());
@@ -67,7 +68,7 @@ export default class Controller {
 
 			this.view.editItemDone(id, title);
 		} else {
-			this.removeItem(id);
+			await this.removeItem(id);
 		}
 	}
 
@@ -101,7 +102,7 @@ export default class Controller {
 	async removeCompletedItems() {
 		await this.store.remove({ completed: true })
 
-		this._filter();
+		this._filter(true);
 	}
 
 	/**
@@ -137,6 +138,8 @@ export default class Controller {
 	 * @param {boolean} [force] Force a re-paint of the list
 	 */
 	_filter(force) {
+		console.log('_filter', force);
+
 		const route = this._activeRoute;
 
 		if (force || this._lastActiveRoute !== '' || this._lastActiveRoute !== route) {

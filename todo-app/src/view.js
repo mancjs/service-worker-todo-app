@@ -60,6 +60,7 @@ export default class View {
 	 * @param {ItemList} items Array of items to display
 	 */
 	showItems(items) {
+		console.log('showItems', items);
 		this.$todoList.innerHTML = this.template.itemList(items);
 	}
 
@@ -198,7 +199,7 @@ export default class View {
 	 */
 	bindRemoveItem(handler) {
 		$delegate(this.$todoList, '.destroy', 'click', ({ target }) => {
-			if (!(target instanceof HTMLInputElement)) throw new Error('Not an input element');
+			if (!(target instanceof HTMLButtonElement)) throw new Error('Not an input element');
 
 			handler(_itemId(target));
 		});
