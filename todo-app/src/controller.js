@@ -1,6 +1,6 @@
 import { emptyItemQuery } from './item.js';
 // import Store from './store.js';
-import StoreRemote from './store-remote.js';
+import StoreRemote, { NetworkError, ServerError } from './store-remote.js';
 import View from './view.js';
 
 export default class Controller {
@@ -141,13 +141,23 @@ export default class Controller {
 		const route = this._activeRoute;
 
 		const refreshList = async () => {
-			const { items, date } = await this.store.find({
-				'': emptyItemQuery,
-				'active': { completed: false },
-				'completed': { completed: true }
-			}[route]);
+			try {
+				const { items, date } = await this.store.find({
+					'': emptyItemQuery,
+					'active': { completed: false },
+					'completed': { completed: true }
+				}[route]);
 
-			this.view.showItems(items, date);
+				this.view.showItems(items, date);
+			} catch (err) {
+				if (err instanceof NetworkError) {
+					alert('Network Error: ' + err.message);
+				}
+
+				if (err instanceof ServerError) {
+					alert('Server Error: ' + err.message);
+				}
+			}
 		}
 
 		if (force || this._lastActiveRoute !== '' || this._lastActiveRoute !== route) {

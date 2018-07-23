@@ -1,5 +1,31 @@
 import { Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery, Store } from './item.js';
 
+export class NetworkError extends Error {
+    /**
+     * @param {string} message 
+     * @param {Error} innerError
+     */
+    constructor(message, innerError) {
+        super(message);
+
+        this.innerError = innerError;
+    }
+}
+
+export class ServerError extends Error {
+    /**
+     * @param {string} message 
+     * @param {number} statusCode
+     * @param {string} statusText 
+     */
+    constructor(message, statusCode, statusText) {
+        super(message);
+
+        this.statusCode = statusCode;
+        this.statusText = statusText;
+    }
+}
+
 export default class StoreRemote {
 	/**
 	 * @param {!string} baseUrl Endpoint URL
@@ -42,7 +68,17 @@ export default class StoreRemote {
 
         const url = `${this.baseUrl}/${path}${queryString ? `?${queryString}` : ''}`;
 
-        const response = await fetch(url, options);
+        let response;
+
+        try {
+            response = await fetch(url, options);
+        } catch (err) {
+            throw new NetworkError('Could not fetch', err);
+        }
+
+        if (!response.ok) {
+            throw new ServerError('Server responded with an error', response.status, response.statusText);
+        }
 
         const dateString = response.headers.get('date');
 
