@@ -1,10 +1,16 @@
-import { Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery } from './item.js';
+import { Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery, Store } from './item.js';
 
 export default class StoreRemote {
 	/**
 	 * @param {!string} baseUrl Endpoint URL
 	 */
     constructor(baseUrl) {
+        /**
+         * Assert that this class correctly implements Store.
+         * @type {Store}
+         */
+        const instance = this;
+
         this.baseUrl = baseUrl;
     }
 
@@ -12,7 +18,7 @@ export default class StoreRemote {
      * @param {string} method
      * @param {string} path
      * @param {object?} data
-     * @returns {Promise<T>}
+     * @returns {Promise<{ json: T, date: Date }>}
      * @template T
      */
     async remoteRequest(method, path, data = undefined) {
@@ -38,7 +44,17 @@ export default class StoreRemote {
 
         const response = await fetch(url, options);
 
-        return await response.json();
+        const dateString = response.headers.get('date');
+
+        if (!dateString) throw new Error('No date header');
+
+        const date = new Date(dateString);
+        const json = await response.json();
+
+        return {
+            json,
+            date,
+        };
     }
 
 	/**
@@ -47,16 +63,21 @@ export default class StoreRemote {
 	 * @param {ItemQuery} query Query to match
 	 */
     async find(query) {
-        return await this.remoteRequest('GET', 'todos', query);
+        const { json, date } = await this.remoteRequest('GET', 'todos', query);
+
+        return {
+            items: json,
+            date,
+        };
     }
 
 	/**
 	 * Update an item in the Store.
 	 *
-	 * @param {ItemUpdate} update Record with an id and a property to update
+	 * @param {Partial<ItemUpdate>} update Record with an id and a property to update
 	 */
     async update(update) {
-        return await this.remoteRequest('PATCH', `todos/${update.id}`, update);
+        await this.remoteRequest('PATCH', `todos/${update.id}`, update);
     }
 
 	/**
@@ -65,7 +86,7 @@ export default class StoreRemote {
 	 * @param {Item} item Item to insert
 	 */
     async insert(item) {
-        return await this.remoteRequest('POST', 'todos', item);
+        await this.remoteRequest('POST', 'todos', item);
     }
 
 	/**
@@ -74,13 +95,15 @@ export default class StoreRemote {
 	 * @param {ItemQuery} query Query matching the items to remove
 	 */
     async remove(query) {
-        return await this.remoteRequest('DELETE', 'todos', query);
+        await this.remoteRequest('DELETE', 'todos', query);
     }
 
 	/**
 	 * Count total, active, and completed todos.
 	 */
     async count() {
-        return await this.remoteRequest('GET', 'todos/count');
+        const { json } = await this.remoteRequest('GET', 'todos/count');
+
+        return json;
     }
 }

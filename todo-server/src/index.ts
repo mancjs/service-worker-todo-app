@@ -19,7 +19,7 @@ const router = new Router();
 
 const app = new Koa();
 
-app.use(cors());
+app.use(cors({ exposeHeaders: ['date'] }));
 app.use(bodyParser());
 
 function queryMatcher(query: { [key: string]: string }, todo: Todo) {
@@ -30,6 +30,8 @@ function queryMatcher(query: { [key: string]: string }, todo: Todo) {
 }
 
 router.get('/todos', async (ctx) => {
+  console.log(Date.now());
+
   ctx.body = todos.filter((todo) => queryMatcher(ctx.query, todo));
 });
 

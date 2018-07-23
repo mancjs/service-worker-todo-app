@@ -23,6 +23,7 @@ export default class View {
 	constructor(template) {
 		this.template = template;
 		this.$todoList = qs('.todo-list');
+		this.$todoListDate = qs('.todo-list-date');
 		this.$todoItemCounter = qs('.todo-count');
 		this.$clearCompleted = qs('.clear-completed');
 		this.$main = qs('.main');
@@ -58,10 +59,13 @@ export default class View {
 	 * Populate the todo list with a list of items.
 	 *
 	 * @param {ItemList} items Array of items to display
+	 * @param {Date} date Date data was retrieved
 	 */
-	showItems(items) {
-		console.log('showItems', items);
+	showItems(items, date) {
+		const secondsOld = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+
 		this.$todoList.innerHTML = this.template.itemList(items);
+		this.$todoListDate.innerHTML = `Retrieved ${secondsOld} seconds ago`;
 	}
 
 	/**

@@ -139,6 +139,11 @@ label[for='toggle-all'] {
 	color: #737373;
 }
 
+.todo-list-date {
+	padding: 5px;
+	background: #f6f6f6;
+}
+
 .todo-list {
 	margin: 0;
 	padding: 0;

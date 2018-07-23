@@ -10,13 +10,14 @@ let todos = [
 ];
 const router = new Router();
 const app = new Koa();
-app.use(cors());
+app.use(cors({ exposeHeaders: ['date'] }));
 app.use(bodyParser());
 function queryMatcher(query, todo) {
     return ((!('id' in query) || todo.id === parseInt(query.id, 10)) &&
         (!('completed' in query) || todo.completed === (query.completed === 'true' ? true : false)));
 }
 router.get('/todos', async (ctx) => {
+    console.log(Date.now());
     ctx.body = todos.filter((todo) => queryMatcher(ctx.query, todo));
 });
 router.delete('/todos', async (ctx) => {

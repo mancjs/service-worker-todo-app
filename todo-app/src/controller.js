@@ -123,9 +123,9 @@ export default class Controller {
 	 * @param {boolean} completed Desired completed state
 	 */
 	async toggleAll(completed) {
-		const data = await this.store.find({ completed: !completed });
+		const { items } = await this.store.find({ completed: !completed });
 
-		for (let { id } of data) {
+		for (let { id } of items) {
 			await this.toggleCompleted(id, completed);
 		}
 
@@ -137,26 +137,30 @@ export default class Controller {
 	 *
 	 * @param {boolean} [force] Force a re-paint of the list
 	 */
-	_filter(force) {
-		console.log('_filter', force);
-
+	async _filter(force) {
 		const route = this._activeRoute;
 
-		if (force || this._lastActiveRoute !== '' || this._lastActiveRoute !== route) {
-			this.store.find({
+		const refreshList = async () => {
+			const { items, date } = await this.store.find({
 				'': emptyItemQuery,
 				'active': { completed: false },
 				'completed': { completed: true }
-			}[route]).then((list) => this.view.showItems(list));
+			}[route]);
+
+			this.view.showItems(items, date);
 		}
 
-		this.store.count().then(({ total, active, completed }) => {
-			this.view.setItemsLeft(active);
-			this.view.setClearCompletedButtonVisibility(completed);
+		if (force || this._lastActiveRoute !== '' || this._lastActiveRoute !== route) {
+			refreshList();
+		}
 
-			this.view.setCompleteAllCheckbox(completed === total);
-			this.view.setMainVisibility(total);
-		});
+		const { total, active, completed } = await this.store.count();
+
+		this.view.setItemsLeft(active);
+		this.view.setClearCompletedButtonVisibility(completed);
+
+		this.view.setCompleteAllCheckbox(completed === total);
+		this.view.setMainVisibility(total);
 
 		this._lastActiveRoute = route;
 	}

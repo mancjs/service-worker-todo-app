@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "todo-app"
+		},
+		{
+			"path": "todo-server"
+		}
+	],
+	"settings": {}
+}
