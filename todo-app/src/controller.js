@@ -1,11 +1,10 @@
-import { emptyItemQuery } from './item.js';
-// import Store from './store.js';
-import StoreRemote, { NetworkError, ServerError } from './store-remote.js';
+import { emptyItemQuery, Store } from './item.js';
+import { NetworkError, ServerError } from './store-remote.js';
 import View from './view.js';
 
 export default class Controller {
 	/**
-	 * @param  {!StoreRemote} store A Store instance
+	 * @param  {!Store} store A Store instance
 	 * @param  {!View} view A View instance
 	 */
 	constructor(store, view) {
@@ -24,8 +23,6 @@ export default class Controller {
 		view.bindToggleAll((completed) => this.toggleAll(completed));
 
 		this._activeRoute = '';
-		/** @type {string | null} */
-		this._lastActiveRoute = null;
 	}
 
 	/**
@@ -53,7 +50,7 @@ export default class Controller {
 		});
 
 		this.view.clearNewTodo();
-		this._filter(true);
+		this._filter();
 	}
 
 	/**
@@ -78,9 +75,9 @@ export default class Controller {
 	 * @param {!number} id ID of the Item in edit
 	 */
 	async editItemCancel(id) {
-		const data = await this.store.find({ id })
+		const { items: [item] } = await this.store.find({ id })
 
-		const title = data[0].title;
+		const title = item.title;
 		this.view.editItemDone(id, title);
 	}
 
@@ -102,7 +99,7 @@ export default class Controller {
 	async removeCompletedItems() {
 		await this.store.remove({ completed: true })
 
-		this._filter(true);
+		this._filter();
 	}
 
 	/**
@@ -134,10 +131,8 @@ export default class Controller {
 
 	/**
 	 * Refresh the list based on the current route.
-	 *
-	 * @param {boolean} [force] Force a re-paint of the list
 	 */
-	async _filter(force) {
+	async _filter() {
 		const route = this._activeRoute;
 
 		try {
@@ -166,7 +161,5 @@ export default class Controller {
 				alert('Server Error: ' + err.message);
 			}
 		}
-
-		this._lastActiveRoute = route;
 	}
 }
