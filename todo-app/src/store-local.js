@@ -1,10 +1,16 @@
-import { Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery } from './item.js';
+import { emptyItemQuery, Item, ItemList, ItemQuery, ItemUpdate, Store } from './item.js';
 
-export default class Store {
+export default class StoreLocal {
 	/**
 	 * @param {!string} name Database name
 	 */
 	constructor(name) {
+		/**
+		 * Assert that this class correctly implements Store.
+		 * @type {Store}
+		 */
+		const instance = this;
+
 		/**
 		 * @type {Storage}
 		 */
@@ -52,7 +58,7 @@ export default class Store {
 		 */
 		let k;
 
-		return todos.filter(todo => {
+		const items = todos.filter(todo => {
 			for (k in query) {
 				if (query[k] !== todo[k]) {
 					return false;
@@ -60,6 +66,23 @@ export default class Store {
 			}
 			return true;
 		});
+
+		const total = todos.length;
+
+		let i = total;
+		let completed = 0;
+
+		while (i--) {
+			completed += todos[i].completed ? 1 : 0;
+		}
+
+		const active = total - completed;
+
+		const counts = { total, active, completed };
+
+		const date = new Date();
+
+		return { items, counts, date };
 	}
 
 	/**
@@ -121,26 +144,5 @@ export default class Store {
 		});
 
 		this.setLocalStorage(todos);
-
-		return todos;
-	}
-
-	/**
-	 * Count total, active, and completed todos.
-	 */
-	async count() {
-		const data = await this.find(emptyItemQuery);
-		const total = data.length;
-
-		let i = total;
-		let completed = 0;
-
-		while (i--) {
-			completed += data[i].completed ? 1 : 0;
-		}
-
-		const active = total - completed;
-
-		return { total, active, completed };
 	}
 }

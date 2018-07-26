@@ -140,37 +140,32 @@ export default class Controller {
 	async _filter(force) {
 		const route = this._activeRoute;
 
-		const refreshList = async () => {
-			try {
-				const { items, date } = await this.store.find({
-					'': emptyItemQuery,
-					'active': { completed: false },
-					'completed': { completed: true }
-				}[route]);
+		try {
+			const { items, counts, date } = await this.store.find({
+				'': emptyItemQuery,
+				'active': { completed: false },
+				'completed': { completed: true }
+			}[route]);
 
-				this.view.showItems(items, date);
-			} catch (err) {
-				if (err instanceof NetworkError) {
-					alert('Network Error: ' + err.message);
-				}
+			this.view.showItems(items, date);
 
-				if (err instanceof ServerError) {
-					alert('Server Error: ' + err.message);
-				}
+			const { total, active, completed } = counts;
+
+			this.view.setItemsLeft(active);
+			this.view.setClearCompletedButtonVisibility(completed);
+
+			this.view.setCompleteAllCheckbox(completed === total);
+			this.view.setMainVisibility(total);
+
+		} catch (err) {
+			if (err instanceof NetworkError) {
+				alert('Network Error: ' + err.message);
+			}
+
+			if (err instanceof ServerError) {
+				alert('Server Error: ' + err.message);
 			}
 		}
-
-		if (force || this._lastActiveRoute !== '' || this._lastActiveRoute !== route) {
-			refreshList();
-		}
-
-		const { total, active, completed } = await this.store.count();
-
-		this.view.setItemsLeft(active);
-		this.view.setClearCompletedButtonVisibility(completed);
-
-		this.view.setCompleteAllCheckbox(completed === total);
-		this.view.setMainVisibility(total);
 
 		this._lastActiveRoute = route;
 	}

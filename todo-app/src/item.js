@@ -42,11 +42,19 @@ export var ItemQuery = 0;
 export const ItemUpdate = 0;
 
 /**
+ * @typedef FindResult
+ * @property items {ItemList}
+ * @property counts {{ total: number, active: number, completed: number }}
+ * @property date {Date}
+ */
+export const FindResult = 0;
+
+
+/**
  * @typedef Store
- * @property find {(query: ItemQuery) => Promise<{ items: ItemList }>}
+ * @property find {(query: ItemQuery) => Promise<FindResult>}
  * @property update {(update: ItemUpdate) => Promise<void>}
  * @property insert {(item: Item) => Promise<void>}
  * @property remove {(query: ItemQuery) => Promise<void>}
- * @property count {() => Promise<{ total: number, active: number, completed: number }>}
  */
 export const Store = 0;

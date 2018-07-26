@@ -99,10 +99,11 @@ export default class StoreRemote {
 	 * @param {ItemQuery} query Query to match
 	 */
     async find(query) {
-        const { json, date } = await this.remoteRequest('GET', 'todos', query);
+        const { json: { items, counts }, date } = await this.remoteRequest('GET', 'todos', query);
 
         return {
-            items: json,
+            items,
+            counts,
             date,
         };
     }
@@ -132,14 +133,5 @@ export default class StoreRemote {
 	 */
     async remove(query) {
         await this.remoteRequest('DELETE', 'todos', query);
-    }
-
-	/**
-	 * Count total, active, and completed todos.
-	 */
-    async count() {
-        const { json } = await this.remoteRequest('GET', 'todos/count');
-
-        return json;
     }
 }

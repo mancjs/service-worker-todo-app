@@ -17,13 +17,7 @@ function queryMatcher(query, todo) {
         (!('completed' in query) || todo.completed === (query.completed === 'true' ? true : false)));
 }
 router.get('/todos', async (ctx) => {
-    console.log(Date.now());
-    ctx.body = todos.filter((todo) => queryMatcher(ctx.query, todo));
-});
-router.delete('/todos', async (ctx) => {
-    ctx.body = todos = todos.filter((todo) => !queryMatcher(ctx.query, todo));
-});
-router.get('/todos/count', async (ctx) => {
+    const items = todos.filter((todo) => queryMatcher(ctx.query, todo));
     const total = todos.length;
     let i = total;
     let completed = 0;
@@ -31,7 +25,11 @@ router.get('/todos/count', async (ctx) => {
         completed += todos[i].completed ? 1 : 0;
     }
     const active = total - completed;
-    ctx.body = { total, active, completed };
+    const counts = { total, active, completed };
+    ctx.body = { items, counts };
+});
+router.delete('/todos', async (ctx) => {
+    ctx.body = todos = todos.filter((todo) => !queryMatcher(ctx.query, todo));
 });
 router.post('/todos', async (ctx) => {
     const todo = ctx.request.body;
