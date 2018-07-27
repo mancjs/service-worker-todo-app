@@ -17,13 +17,11 @@ function queryMatcher(query, todo) {
         (!('completed' in query) || todo.completed === (query.completed === 'true' ? true : false)));
 }
 router.get('/todos', async (ctx) => {
-    const items = todos.filter((todo) => queryMatcher(ctx.query, todo));
+    const items = todos
+        .filter((todo) => queryMatcher(ctx.query, todo))
+        .map((todo) => (Object.assign({}, todo, { synced: true })));
     const total = todos.length;
-    let i = total;
-    let completed = 0;
-    while (i--) {
-        completed += todos[i].completed ? 1 : 0;
-    }
+    const completed = todos.reduce((prev, todo) => prev + (todo.completed ? 1 : 0), 0);
     const active = total - completed;
     const counts = { total, active, completed };
     ctx.body = { items, counts };
@@ -33,7 +31,7 @@ router.delete('/todos', async (ctx) => {
 });
 router.post('/todos', async (ctx) => {
     const todo = ctx.request.body;
-    todos.push(todo);
+    todos.push(Object.assign({}, todo));
     ctx.body = todo;
 });
 router.patch('/todos/:id', async (ctx) => {

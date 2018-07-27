@@ -109,7 +109,11 @@ export default class Controller {
 	 * @param {!boolean} completed Desired completed state
 	 */
 	async toggleCompleted(id, completed) {
-		await this.store.update({ id, completed });
+		try {
+			await this.store.update({ id, completed });
+		} catch (err) {
+			this._handleError(err);
+		}
 
 		this.view.setItemComplete(id, completed);
 	}
@@ -153,13 +157,21 @@ export default class Controller {
 			this.view.setMainVisibility(total);
 
 		} catch (err) {
-			if (err instanceof NetworkError) {
-				alert('Network Error: ' + err.message);
-			}
+			this._handleError(err);
+		}
+	}
 
-			if (err instanceof ServerError) {
-				alert('Server Error: ' + err.message);
-			}
+	/**
+	 * Display the error to the user
+	 * @param {Error} err 
+	 */
+	_handleError(err) {
+		if (err instanceof NetworkError) {
+			alert('Network Error: ' + err.message);
+		}
+
+		if (err instanceof ServerError) {
+			alert('Server Error: ' + err.message);
 		}
 	}
 }

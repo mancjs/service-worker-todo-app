@@ -66,6 +66,10 @@ export default class View {
 
 		this.$todoList.innerHTML = this.template.itemList(items);
 		this.$todoListDate.innerHTML = `Retrieved ${secondsOld} seconds ago`;
+
+		if (secondsOld > 5) {
+			this.$todoListDate.innerHTML += ' <b>Warning, this information is stale!</b>';
+		}
 	}
 
 	/**

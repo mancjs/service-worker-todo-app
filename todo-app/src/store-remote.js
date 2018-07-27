@@ -1,4 +1,4 @@
-import { Item, ItemList, ItemQuery, ItemUpdate, emptyItemQuery, Store } from './item.js';
+import { ItemInsert, ItemQuery, ItemUpdate, Store } from './item.js';
 
 export class NetworkError extends Error {
     /**
@@ -120,7 +120,7 @@ export default class StoreRemote {
 	/**
 	 * Insert an item into the Store.
 	 *
-	 * @param {Item} item Item to insert
+	 * @param {ItemInsert} item Item to insert
 	 */
     async insert(item) {
         await this.remoteRequest('POST', 'todos', item);

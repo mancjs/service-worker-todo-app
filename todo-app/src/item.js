@@ -1,5 +1,9 @@
 /**
- * @typedef {!{id: number, completed: boolean, title: string}} Item
+ * The variables in this file are not real variables but are placeholders to allow type information to be exported.
+ */
+
+/**
+ * @typedef {!{id: number, completed: boolean, title: string, synced: boolean}} Item
  */
 export var Item = 0;
 
@@ -7,15 +11,6 @@ export var Item = 0;
  * @typedef {!Array<Item>} ItemList
  */
 export var ItemList = 0;
-
-/**
- * Enum containing a known-empty record type, matching only empty records unlike Object.
- *
- * @type {{Record: {}}}
- */
-const Empty = {
-	Record: {}
-};
 
 /**
  * Empty ItemQuery type
@@ -27,9 +22,9 @@ export var EmptyItemQuery = 0;
 /**
  * Reference to the only EmptyItemQuery instance.
  *
- * @type {ItemQuery}
+ * @type {!ItemQuery}
  */
-export const emptyItemQuery = Empty.Record;
+export const emptyItemQuery = Object.freeze({});
 
 /**
  * @typedef {!({id?: number, completed?: boolean})} ItemQuery
@@ -37,9 +32,14 @@ export const emptyItemQuery = Empty.Record;
 export var ItemQuery = 0;
 
 /**
+ * @typedef {!{id: number, completed: boolean, title: string}} ItemInsert
+ */
+export var ItemInsert = 0;
+
+/**
  * @typedef {!({id: number, title: string}|{id: number, completed: boolean})} ItemUpdate
  */
-export const ItemUpdate = 0;
+export var ItemUpdate = 0;
 
 /**
  * @typedef FindResult
@@ -47,14 +47,14 @@ export const ItemUpdate = 0;
  * @property counts {{ total: number, active: number, completed: number }}
  * @property date {Date}
  */
-export const FindResult = 0;
+export var FindResult = 0;
 
 
 /**
  * @typedef Store
  * @property find {(query: ItemQuery) => Promise<FindResult>}
  * @property update {(update: ItemUpdate) => Promise<void>}
- * @property insert {(item: Item) => Promise<void>}
+ * @property insert {(item: ItemInsert) => Promise<void>}
  * @property remove {(query: ItemQuery) => Promise<void>}
  */
-export const Store = 0;
+export var Store = 0;

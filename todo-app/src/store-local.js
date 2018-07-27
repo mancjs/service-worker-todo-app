@@ -1,4 +1,4 @@
-import { emptyItemQuery, Item, ItemList, ItemQuery, ItemUpdate, Store } from './item.js';
+import { ItemInsert, ItemList, ItemQuery, ItemUpdate, Store } from './item.js';
 
 export default class StoreLocal {
 	/**
@@ -115,11 +115,11 @@ export default class StoreLocal {
 	/**
 	 * Insert an item into the Store.
 	 *
-	 * @param {Item} item Item to insert
+	 * @param {ItemInsert} item Item to insert
 	 */
 	async insert(item) {
 		const todos = this.getLocalStorage();
-		todos.push(item);
+		todos.push({ ...item, synced: true });
 		this.setLocalStorage(todos);
 	}
 

@@ -20,7 +20,7 @@ export default class Template {
 		return items.reduce((a, item) => a + `
 <li data-id="${item.id}"${item.completed ? ' class="completed"' : ''}>
 	<input class="toggle" type="checkbox" ${item.completed ? 'checked' : ''} />
-	<label>${escapeForHTML(item.title)}</label>
+	<label>${escapeForHTML(item.title)} ${!item.synced ? '[Not synced]' : ''}</label>
 	<button class="destroy"></button>
 </li>`, '');
 	}

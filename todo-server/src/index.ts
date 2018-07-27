@@ -30,17 +30,12 @@ function queryMatcher(query: { [key: string]: string }, todo: Todo) {
 }
 
 router.get('/todos', async (ctx) => {
-  const items = todos.filter((todo) => queryMatcher(ctx.query, todo));
+  const items = todos
+    .filter((todo) => queryMatcher(ctx.query, todo))
+    .map((todo) => ({ ...todo, synced: true }));
 
   const total = todos.length;
-
-  let i = total;
-  let completed = 0;
-
-  while (i--) {
-    completed += todos[i].completed ? 1 : 0;
-  }
-
+  const completed = todos.reduce((prev, todo) => prev + (todo.completed ? 1 : 0), 0);
   const active = total - completed;
 
   const counts = { total, active, completed };
@@ -55,7 +50,7 @@ router.delete('/todos', async (ctx) => {
 router.post('/todos', async (ctx) => {
   const todo = ctx.request.body as Todo;
 
-  todos.push(todo);
+  todos.push({ ...todo });
 
   ctx.body = todo;
 });
