@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "todo-server"
+		},
+		{
+			"path": "todo-intro"
 		}
 	],
 	"settings": {}

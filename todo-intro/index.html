@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Title</title>
+  <meta charset="utf-8" />
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+    @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+    body {
+      font-family: 'Droid Serif';
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: 'Yanone Kaffeesatz';
+      font-weight: normal;
+    }
+
+    .remark-code,
+    .remark-inline-code {
+      font-family: 'Ubuntu Mono';
+    }
+
+    li {
+      margin-bottom: 16px;
+    }
+
+    .inverse {
+      background: #272822;
+      color: #777872;
+      text-shadow: 0 0 20px #333;
+    }
+    .inverse h1, .inverse h2 {
+      color: #f3f3f3;
+      line-height: 0.8em;
+    }
+  </style>
+
+  <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="https://cdn.rawgit.com/chunksnbits/jquery-quickfit/master/jquery.quickfit.js"></script> -->
+
+  <script>
+    "use strict";
+
+    window.addEventListener('load', async () => {
+      const resp = await fetch('content.md');
+      const source = await resp.text();
+
+      const slideshow = remark.create({
+        source,
+      });
+
+      // $('.remark-slide-content').quickfit({ 'min': 20, 'max': 36 });
+    });
+  </script>
+</head>
+
+<body>
+</body>
+
+</html>
