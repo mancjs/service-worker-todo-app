@@ -1,6 +1,20 @@
 # Service Worker Tutorial
 
+To use the optional type information with this tutorial, using Visual Studio Code is recommended.
+
 When the tutorial asks you to go offline, use the "Offline" checkbox in your browser's developer tools.
+
+## Running the Todo app
+
+The Todo is run from a NodeJS server. After clone this repository, run this from your terminal:
+
+```bash
+cd todo-server
+yarn
+yarn start
+```
+
+The web app itself is contained within the `todo-app` folder. Open this folder with your favourite editor.
 
 ## Add a service worker boilerplate to the Todo app
 
@@ -232,3 +246,109 @@ Now try some challenges...
 
 > Capture post requests when offline and store them in local storage.
 
+### Tips
+
+Here is how you might intercept a POST request:
+
+```javascript
+    // We're offline. Intercept the request to see if we can deal with it...
+    if (e.request.method === 'POST' && e.request.url.endsWith('/todos')) {
+
+        // We need to store the todo somewhere until we are back online
+        const todo = await requestClone.json();
+
+        storeUnsyncedTodo(todo);
+
+        // Return an empty response with status 202 Accepted
+        return new Response('{}', {
+            status: 202,
+            headers: new Headers({
+                'content-type': 'application/json',
+                'date': date.toUTCString(),
+            }),
+        });
+    }
+```
+
+In the file `idb.js` there are some useful storage methods for persisting and retrieving todos.
+
+> Intercept the GET requests for todos and merge in the unsynced todos.
+
+### Tips
+
+Here is a way to retrieve the last successful GET, and merge in the unsynced todos:
+
+```javascript
+    // Intercept the request to get all todos, and append unsynced todos so the user can still see them
+    if (e.request.method === 'GET' && e.request.url.endsWith('/todos')) {
+
+        const response = await caches.match(e.request);
+
+        // Get synced todos from cache (last known state)
+        const lastReply = await response.json();
+
+        // Get unsynced todos
+        const unsyncedTodos = await getUnsyncedTodos();
+
+        // Combined them and reply
+        const json = JSON.stringify({
+            ...lastReply,
+            items: [...lastReply.items, ...unsyncedTodos],
+        });
+
+        return new Response(json, {
+            status: 200,
+            headers: new Headers({
+                'content-type': 'application/json',
+                'date': date.toUTCString(),
+            }),
+        });
+    }
+```
+
+> Add a sync event to inform the service worker to attempt to synchronise when it next can
+
+### Tips
+
+Here is a simple synchronisation function. It is triggered when the `todo-sync` sync tag is registered.
+
+In it fails with a promise rejection, the sync will be rescheduled to occured at some time in the future.
+
+```javascript
+async function attemptSync() {
+    console.log('[ServiceWorker] Attempting sync...');
+
+    const unsyncedTodos = await getUnsyncedTodos();
+
+    /**
+     * Return a promise of all pending todos uploads. If a single promise is rejected, the sync event will reschedule
+     */
+    await Promise.all(unsyncedTodos.map(async (todo) => {
+        const url = '/todos';
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(todo),
+            headers: new Headers({ 'content-type': 'application/json' }),
+        };
+
+        const req = new Request(url, options);
+
+        await fetch(req);
+    }));
+
+    // Clear now that we have successfully synced
+    await clearUnsyncedTodos();
+
+    console.log('[ServiceWorker] Sync success');
+}
+
+self.addEventListener('sync', (e) => e.waitUntil((async () => {
+
+    // If this promise rejects, sync will be called again at some point in the future with this tag
+    if (e.tag === 'todo-sync') {
+        await attemptSync();
+    }
+
+})()));
+```

@@ -4,4 +4,4 @@
 
 ## Service Worker Tutorial
 
-This app is part of an exercise teaching how to apply service workers. Instructions will follow...
+This app is part of an exercise teaching how to apply service workers. Instructions in the root of this repository.

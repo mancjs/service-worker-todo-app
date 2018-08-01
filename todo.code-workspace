@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "todo-intro"
+		},
+		{
+			"path": "."
 		}
 	],
 	"settings": {}

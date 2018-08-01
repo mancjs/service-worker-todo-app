@@ -30,6 +30,7 @@ What if we could ship a minature HTTP server along with our app?
 - Effectively proxy servers, but can fulfil HTTP requests by themselves too
 - Direct assess to browser cache. Your script has control: Cache / Don't cache / Expire...
 - Superset of Web Workers. They run as threads, but also outlive the page lifecycle.
+- Access to IndexedDB (but not Local Storage)
 - Single instance per origin
 - Coming soon (periodic sync)
 
@@ -133,12 +134,50 @@ return new Response('<p>Hello from Service Worker</p>', {
 - Deliver if available, otherwise fetch and cache, then deliver
 - Always fetch first, fallback to cache if offline
 - Fetch race
-- Synthesise a response from scratch
+- Background sync of content generated whilst offline
+
+---
+
+# Sync event
+
+Calling this in your app (one or many times) will enqueue a sync:
+
+```javascript
+registration.sync.register('my-sync-event');
+```
+
+Handling a sync event:
+
+```javascript
+self.addEventListener('sync', (e) => e.waitUntil((async () => {
+
+    if (e.tag === 'my-sync-event') {
+        await mySyncFunction();
+    }
+
+})()));
+```
+
+A promise rejection inside a sync event will cause the browser to reschedule.
 
 ---
 
 # Novel service worker uses
 
 - Polyfill support for use image formats
-- Transpilation (SCSS -> CSS, TS -> JS, JSX -> JS)
+- Load balancing
+- Serve your whole app out of a single ZIP file
 - Generating placeholders
+- Transpilation
+
+    - SCSS -> CSS
+    - TS -> JS
+    - JSX -> JS
+
+---
+
+# Tutorial
+
+Clone this repository and follow the instructions :-)
+
+https://github.com/mancjs/service-worker-todo-app
