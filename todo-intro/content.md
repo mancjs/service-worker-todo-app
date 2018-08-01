@@ -32,6 +32,7 @@ What if we could ship a minature HTTP server along with our app?
 - Superset of Web Workers. They run as threads, but also outlive the page lifecycle.
 - Access to IndexedDB (but not Local Storage)
 - Single instance per origin
+- Trigger push events in your worker remotely (and display notifications)
 - Coming soon (periodic sync)
 
 ---
@@ -180,4 +181,6 @@ A promise rejection inside a sync event will cause the browser to reschedule.
 
 Clone this repository and follow the instructions :-)
 
+```
 https://github.com/mancjs/service-worker-todo-app
+```
