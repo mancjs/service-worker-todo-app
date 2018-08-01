@@ -312,7 +312,7 @@ Here is a way to retrieve the last successful GET, and merge in the unsynced tod
 
 Here is a simple synchronisation function. It is triggered when the `todo-sync` sync tag is registered.
 
-In it fails with a promise rejection, the sync will be rescheduled to occured at some time in the future.
+If it fails with a promise rejection, the sync will be rescheduled to occured at some time in the future.
 
 ```javascript
 async function attemptSync() {
@@ -351,4 +351,14 @@ self.addEventListener('sync', (e) => e.waitUntil((async () => {
     }
 
 })()));
+```
+
+We can schedule a `todo-sync` event in our app like this...
+
+```javascript
+const registration = await navigator.serviceWorker.getRegistration()
+
+if (registration) {
+    await registration.sync.register('todo-sync');
+}
 ```
