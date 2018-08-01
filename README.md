@@ -238,7 +238,7 @@ The last known state of the todo list should appear, but you might be warned tha
 
 You may also notice that issues with catching responses that are not replies to a `GET` method. This restriction is because these other methods are not idempotent and therefore forbidden from cache storage.
 
-## Further challenges
+## Further challenges
 
 Now try some challenges...
 
