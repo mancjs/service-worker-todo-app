@@ -26,9 +26,11 @@ What if we could ship a minature HTTP server along with our app?
 
 # Meet service workers...
 
+- Available in all modern browsers
 - Effectively proxy servers, but can fulfil HTTP requests by themselves too
 - Direct assess to browser cache. Your script has control: Cache / Don't cache / Expire...
 - Superset of Web Workers. They run as threads, but also outlive the page lifecycle.
+- Single instance per origin
 - Coming soon (periodic sync)
 
 ---
@@ -41,6 +43,7 @@ What if we could ship a minature HTTP server along with our app?
     - Can force upgrade of the service worker (if there is a previous service worker, optional)
 
 - Activated event
+    - Ready serve, but not necessarily serving
     - Clean up cache files from previous service worker (if there was one)
     - Can force the service worker to immediately take over browser fetches (optional)
 
@@ -49,13 +52,20 @@ What if we could ship a minature HTTP server along with our app?
     - How the service worker responds to this is entirely up to you
 
 ---
+template: inverse
 
-# Where do we store all this data? Cache storage...
+# Where do we store all this data?
+
+---
+
+# Cache Storage API...
 
 - Programmatic access to your browser's cache
+- Separate from memory / disk caches
 - Request is the key, Response is the value
 - Spec suggests a 'least recently used' clean up pattern (Best effort)
 - Persistence can be obtained under certain circumstances
+- Can also be accessed on main JavaScript thread
 
 ---
 
@@ -64,8 +74,13 @@ What if we could ship a minature HTTP server along with our app?
 In your application:
 
 ```javascript
-const registration = await navigator.serviceWorker.register('service-worker.js', { scope: '/' });
+const registration = 
+    await navigator.serviceWorker.register('service-worker.js', 
+    { scope: '/' }
+);
 ```
+
+Don't change the name of your service worker script!
 
 Bare minimum Service Worker script (does nothing except passthrough and log):
 
@@ -81,6 +96,21 @@ Using async because I (personally) prefer the syntax.
 
 ---
 
+# Synthetic responses
+
+Service workers can deliver responses all by themselves...
+
+```javascript
+return new Response('<p>Hello from Service Worker</p>', {
+    status: 200,
+    headers: new Headers({
+        'content-type': 'text/html',
+    }),
+});
+```
+
+---
+
 # Things to be aware of
 
 - Requires HTTPS, but will work on localhost on HTTP
@@ -89,12 +119,11 @@ Using async because I (personally) prefer the syntax.
 - Use the same path for your script even after updates
 - Chrome honours "cache-control: max-age=..." headers for service worker script
 
----
-
 ## For development
 
 - Use "Update on reload" feature to ensure worker script is always current
-- Simulating offline in Chrome doesn't work for `localhost`
+- Use "Offline" to simulate a network outage
+- Chrome also offers a range of other tools to debug your workers
 
 ---
 

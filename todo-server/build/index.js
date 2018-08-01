@@ -77,7 +77,6 @@ app.use(router.routes());
  */
 app.use(async (ctx) => {
     console.log('Serving:', colors_1.default.cyan(ctx.path));
-    console.log(ctx.headers['origin']);
     const path = ctx.path !== '/' ? ctx.path : 'index.html';
     await koa_send_1.default(ctx, path, { root: AssetPath });
 });
