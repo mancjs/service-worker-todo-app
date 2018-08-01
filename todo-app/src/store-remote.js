@@ -99,6 +99,12 @@ export default class StoreRemote {
 	 * @param {ItemQuery} query Query to match
 	 */
     async find(query) {
+        const controller = navigator.serviceWorker.controller;
+
+        if (controller) {
+            controller.postMessage('todo-sync-force');
+        }
+
         const { json: { items, counts }, date } = await this.remoteRequest('GET', 'todos', query);
 
         return {
@@ -124,6 +130,12 @@ export default class StoreRemote {
 	 */
     async insert(item) {
         await this.remoteRequest('POST', 'todos', item);
+
+        const registration = await navigator.serviceWorker.getRegistration()
+
+        if (registration) {
+            await registration.sync.register('todo-sync');
+        }
     }
 
 	/**
