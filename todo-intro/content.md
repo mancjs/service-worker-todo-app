@@ -165,7 +165,7 @@ A promise rejection inside a sync event will cause the browser to reschedule.
 
 # Novel service worker uses
 
-- Polyfill support for use image formats
+- Polyfill support for new image formats
 - Load balancing
 - Serve your whole app out of a single ZIP file
 - Generating placeholders
